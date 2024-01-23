@@ -1,9 +1,11 @@
-from PIL import Image
 from datetime import datetime, timedelta
+
+from PIL import Image
+
 
 def make_color_transparent(input_path, output_path, target_color_hex):
     # Convert hexadecimal color code to RGB tuple
-    target_color = tuple(int(target_color_hex[i:i+2], 16) for i in (1, 3, 5))
+    target_color = tuple(int(target_color_hex[i : i + 2], 16) for i in (1, 3, 5))
 
     # Open the image
     image = Image.open(input_path)
@@ -35,23 +37,25 @@ def make_color_transparent(input_path, output_path, target_color_hex):
 
     # Save the image with transparency as a PNG
     new_image.save(output_path, format="PNG")
-    
+
+
 def create_week(weekday):
     en_2_kr = {
-        "Monday" : "월",
-        "Tuesday" : "화",
-        "Wednesday" : "수",
-        "Thursday" : "목",
-        "Friday" : "금",
-        "Saturday" : "토",
-        "Sunday" : "일",
+        "Monday": "월",
+        "Tuesday": "화",
+        "Wednesday": "수",
+        "Thursday": "목",
+        "Friday": "금",
+        "Saturday": "토",
+        "Sunday": "일",
     }
     new_weekdays = []
     for week in weekday:
         new_weekdays.append(en_2_kr[week])
-        
+
     return new_weekdays
 
-def create_date_string(first_date : datetime):
+
+def create_date_string(first_date: datetime):
     dates = [first_date + timedelta(days=i) for i in range(7)]
     return [date.strftime("%m.%d") for date in dates]

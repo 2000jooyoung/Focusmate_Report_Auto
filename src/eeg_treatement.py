@@ -1,32 +1,24 @@
-import os
-import json
-import scipy
-import boto3
-import s3fs
-import glob
-import scipy.signal.windows
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import requests
-import pymongo
+import s3fs
 
-from scipy.signal import welch, iirfilter, lfilter
-from scipy import signal
-
-import matplotlib.pyplot as plt
-
-#Gradient Color Bar Plots
+# Gradient Color Bar Plots
 from matplotlib import cm
+from scipy import signal
+from scipy.signal import welch
 
-
-import pandas as pd
-import boto3
-import json
-import pymongo
-import pandas as pd
 
 # basic preprocessing
-def eeg_filter(eeg, btype, eeg_sr=250, freq_high=0.5, freq_stop=60, freq_band=[1, 50], eeg_butter_order=3, ):
+def eeg_filter(
+    eeg,
+    btype,
+    eeg_sr=250,
+    freq_high=0.5,
+    freq_stop=60,
+    freq_band=[1, 50],
+    eeg_butter_order=3,
+):
     f_n = eeg_sr / 2
     b = 1
     a = 1
@@ -72,52 +64,55 @@ def apply_filter(eeg_raw_data):
     applied_bandpass = eeg_filter(applied_highpass, "bandpass")
 
     filt_eeg = applied_bandpass
-    
+
     return filt_eeg
 
-    
+
 def epoching_for_fft(eeg, nperseg):
     epochs = []
     overlap = len(eeg) - nperseg
     epoch_count = len(eeg) // nperseg + 1
-    
+
     first_seg = eeg[0:nperseg]
-    second_seg = eeg[len(eeg)//2 - nperseg//2 : len(eeg)//2 + nperseg//2]
+    second_seg = eeg[len(eeg) // 2 - nperseg // 2 : len(eeg) // 2 + nperseg // 2]
     third_seg = eeg[-nperseg:]
-    
+
     epochs.append(first_seg)
     epochs.append(second_seg)
     epochs.append(third_seg)
-    
+
     return epochs
-    
+
+
 def segment_per_second(eeg, nperseg):
-    epochs = [eeg[i * nperseg: (i + 1) * nperseg] for i in range(len(eeg) // nperseg)]
-    
+    epochs = [eeg[i * nperseg : (i + 1) * nperseg] for i in range(len(eeg) // nperseg)]
+
     return epochs
+
 
 def psd_norm(psd):
     denom = psd.sum(axis=1, keepdims=True)
     normed = psd / denom
     return normed
 
+
 # def calculate_psd_from_fft(eeg, nperseg, relative=True):
 #     MIN_FREQ_INDEX = 1
 #     MAX_FREQ_INDEX = 55
-    
+
 #     epoch_seg = 128
 #     all_psds = []
 #     segments = segment_per_second(eeg, nperseg)
 #     for segment in segments:
 #         segment_psds = []
-        
+
 #         epochs = epoching_for_fft(segment, epoch_seg)
 #         for epoch in epochs:
 #             fft_result = np.fft.fft(epoch)
 #             power_spectrum = np.sqrt(np.abs(fft_result)**2)
 # #             psd = power_spectrum / len(epoch) / 250 * 2
 #             segment_psds.append(power_spectrum)
-    
+
 #         segment_psds = np.array(segment_psds)
 #         f = np.fft.fftfreq(len(epochs[0]), 1/128)
 
@@ -131,21 +126,21 @@ def psd_norm(psd):
 #         all_psds.append(segment_psd_avg)
 #     return f, np.array(all_psds)
 
+
 def calculate_psd_from_fft(eeg, nperseg, relative=True):
     MIN_FREQ_INDEX = 1
     MAX_FREQ_INDEX = 50
-        
+
     all_psds = []
     segments = segment_per_second(eeg, nperseg)
     for segment in segments:
-
         fft_result = np.fft.fft(segment)
-        power_spectrum = np.sqrt(np.abs(fft_result)**2)
-#         psd = power_spectrum / len(segment) / 250 * 2
+        power_spectrum = np.sqrt(np.abs(fft_result) ** 2)
+        #         psd = power_spectrum / len(segment) / 250 * 2
         # 아랫줄만 밀어넣을 것
         segment_psd = np.array(power_spectrum)
-        
-        f = np.fft.fftfreq(len(segment), 1/250)
+
+        f = np.fft.fftfreq(len(segment), 1 / 250)
         idx_crop = (MIN_FREQ_INDEX <= f) & (f <= MAX_FREQ_INDEX)
         segment_psd = segment_psd[idx_crop]
         f = f[idx_crop]
@@ -155,14 +150,14 @@ def calculate_psd_from_fft(eeg, nperseg, relative=True):
         all_psds.append(segment_psd)
     return f, np.array(all_psds)
 
+
 def load_raw_data_list(userId, crownId, bucket):
     sf = s3fs.S3FileSystem(anon=False)
-    path_obj = f'{bucket}/focus-timer/{userId}/{crownId}'
-    raw_data_files = sf.glob(f'{path_obj}//**')
+    path_obj = f"{bucket}/focus-timer/{userId}/{crownId}"
+    raw_data_files = sf.glob(f"{path_obj}//**")
     raw_data_files.sort()
-    
-    return raw_data_files
 
+    return raw_data_files
 
 
 def psd_norm_without_epoch(psd):
@@ -187,9 +182,6 @@ def calculate_PSD_without_epoch(eeg, nperseg, relative=True):
     return f, psd
 
 
-
-
-
 # find slope, intercept
 def linear_function_from_points(x1, y1, x2, y2):
     # Calculate the slope (m)
@@ -205,60 +197,74 @@ def linear_function_from_points(x1, y1, x2, y2):
 
 # rel beta
 
+
 def rel_mapping_function(x):
-    slope, intercept = linear_function_from_points(0.1259656620109476, 0.1, 0.9240767476420029, 0.99)
-    
+    slope, intercept = linear_function_from_points(
+        0.1259656620109476, 0.1, 0.9240767476420029, 0.99
+    )
+
     result = slope * x + intercept
-    
+
     if result > 0.99:
         result = 0.99
     elif result < 0.1:
         result = 0.1
-    
+
     return result
+
 
 # abs beta
 
+
 def abs_mapping_function(x):
-    slope, intercept = linear_function_from_points(20.939314485618187, 0.1, 30.637675003992527, 0.99)
-    
+    slope, intercept = linear_function_from_points(
+        20.939314485618187, 0.1, 30.637675003992527, 0.99
+    )
+
     result = slope * x - intercept
-    result = 1 / (1 + np.e ** (- x + 9.718946665209524))    
-#     if result > 0.99:
-#         result = 0.99
-#     if result < 0.1:
-#         result = 0.1
-    
+    result = 1 / (1 + np.e ** (-x + 9.718946665209524))
+    #     if result > 0.99:
+    #         result = 0.99
+    #     if result < 0.1:
+    #         result = 0.1
+
     return result
 
 
-
-def gradientbars(bars,ydata,cmap):
+def gradientbars(bars, ydata, cmap):
     ax = bars[0].axes
-    lim = ax.get_xlim()+ax.get_ylim()
+    lim = ax.get_xlim() + ax.get_ylim()
     ax.axis(lim)
     for bar in bars:
         bar.set_facecolor("none")
-        x,y = bar.get_xy()
+        x, y = bar.get_xy()
         w, h = bar.get_width(), bar.get_height()
-        grad = np.atleast_2d(np.linspace(0,1*h/max(ydata),256)).T
-#         print(grad)
-        ax.imshow(grad, extent=[x,x+w,y,y+h], origin='lower', aspect="auto", 
-                  norm=cm.colors.NoNorm(vmin=0,vmax=1), cmap=plt.get_cmap(cmap))
-    
+        grad = np.atleast_2d(np.linspace(0, 1 * h / max(ydata), 256)).T
+        #         print(grad)
+        ax.imshow(
+            grad,
+            extent=[x, x + w, y, y + h],
+            origin="lower",
+            aspect="auto",
+            norm=cm.colors.NoNorm(vmin=0, vmax=1),
+            cmap=plt.get_cmap(cmap),
+        )
+
+
 def get_eeg_frequency(fft):
-    delta = np.sum(fft[:,0:3], axis=1)
-    theta = np.sum(fft[:,3:7], axis=1)
-    alpha = np.sum(fft[:,7:13], axis=1)
-    beta = np.sum(fft[:,13:30], axis=1)
-    gamma = np.sum(fft[:,30:], axis=1)
-    
+    delta = np.sum(fft[:, 0:3], axis=1)
+    theta = np.sum(fft[:, 3:7], axis=1)
+    alpha = np.sum(fft[:, 7:13], axis=1)
+    beta = np.sum(fft[:, 13:30], axis=1)
+    gamma = np.sum(fft[:, 30:], axis=1)
+
     return delta, theta, alpha, beta, gamma
 
+
 def chunk_data(freq_data, n):
-    freq_data = freq_data[:(len(freq_data) // n) * n]
+    freq_data = freq_data[: (len(freq_data) // n) * n]
     new_data = freq_data.reshape(-1, n)
-    
+
     meaned_new_data = np.mean(new_data, axis=1)
-    
+
     return meaned_new_data

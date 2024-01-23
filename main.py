@@ -8,6 +8,9 @@ from datetime import datetime
 import pandas as pd
 import os
 from PyPDF2 import PdfReader, PdfWriter
+import pytz
+
+
 def tmp_create_user_df():
     return pd.read_csv("tmp.csv")
 
@@ -39,11 +42,17 @@ def merge_pdfs(output_path, input_paths):
     except Exception as e:
         print(f"Error: {e}")
 
+
 date = datetime(2023, 12, 21)
+utc_plus_9 = pytz.timezone("Asia/Tokyo")
+date = utc_plus_9.localize(date)
+
 df = create_user_df("6541eb349113bf9e08eaaab3", date)
+# df = create_user_df("65819928109bf12162aa1aab", date)
 # df = tmp_create_user_df()
 
 name = "박해원"
+
 
 if not os.path.exists(name):
     os.makedirs(name)

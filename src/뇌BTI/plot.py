@@ -11,7 +11,7 @@ from src.resize_image import resize_image
 def get_summarized_brain_energy(df):
     summarized_brain_energies = []
 
-    for i in np.array(list(df.abs_brain_energies)):
+    for i in np.array(list(df.abs_brain_energies), dtype=object):
         if len(i) == 1:
             continue
         first = i[0:10]

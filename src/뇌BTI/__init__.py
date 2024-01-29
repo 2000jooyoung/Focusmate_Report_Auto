@@ -3,72 +3,128 @@ from datetime import timedelta
 from src.GenerateFromTemplate import GenerateFromTemplate
 from src.뇌BTI.plot import *
 
+x, y, coef_x, coef_y, step = 20, 320, 280, -90, 12
 
-def draw_D(gen):
-    gen.addText("D(Dash)는 속도형입니다. 속도형의 사람들은 공부 초반에 두뇌 가동률이", (20, 310), font_size=9)
-    gen.addText(f"상승하는 경향을 보이며, 자신의 역량을 끌어 올리려는 성향이", (20, 298), font_size=9)
-    gen.addText("있습니다. ", (20, 286), font_size=9)
+# 초반 집중 유형
+
+def 낮은_초반_집중_유형(gen, name):
+    gen.addText(f"{name}님의 초반 집중 유형", (x, y), font_size=10)
+    gen.addText("초반 10분동안의 두뇌 가동률 변화 추이는 대상이 집중함에 있어 도입부에", (x, y - step * 1), font_size=9)
+    gen.addText(f"어떤 자세를 취하는지를 유추 할 수 있습니다. {name}님의 초반 두뇌 가동률 ", (x, y - step * 2), font_size=9)
+    gen.addText("변화 추이는 하락을 하는 경향을 보이며, 이는 초반에는 주어진 과제를 분석", (x, y - step * 3), font_size=9)
+    gen.addText("하여 적응해나가는 유형입니다.", (x, y - step * 4), font_size=9)
+    
+def 높은_초반_집중_유형(gen, name):
+    gen.addText(f"{name}님의 초반 집중 유형", (x, y), font_size=10)
+    gen.addText("초반 10분동안의 두뇌 가동률 변화 추이는 대상이 집중함에 있어 도입부에", (x, y - step * 1), font_size=9)
+    gen.addText(f"어떤 자세를 취하는지를 유추 할 수 있습니다. {name}님의 초반 두뇌 가동률 ", (x, y - step * 2), font_size=9)
+    gen.addText("변화 추이는 상승을 하는 경향을 보이며, 이는 초반부터 강하게 집중력을 ", (x, y - step * 3), font_size=9)
+    gen.addText("끌어올리는 유형입니다.", (x, y - step * 4), font_size=9)
+      
+# 중반 집중 유형
+
+def 낮은_중반_집중_유형(gen, name):
+    gen.addText(f"{name}님의 중반 집중 유형", (x + coef_x, y), font_size=10)
+    gen.addText("중반 10분은 실행된 시간에 관계 없이 초반 10분과 후반 10분을 제외한", (x + coef_x, y - step * 1), font_size=9)
+    gen.addText("나머지 시간을 10분으로 요약해 나타냅니다. 즉, 중반 10분간의", (x + coef_x, y - step * 2), font_size=9)
+    gen.addText(f"두뇌 가동률 변화 추이는 대상의 전체적인 가동률을 대변합니다. {name}님의", (x + coef_x, y - step * 3), font_size=9)
+    gen.addText("중반 두뇌 가동률 변화 추이는 하락을 하는 경향을 보이며, 이는 지속성을", (x + coef_x, y - step * 4), font_size=9)
+    gen.addText("위해 집중력의 강도를 조절하는 유형입니다.", (x + coef_x, y - step * 5), font_size=9)
+    
+def 높은_중반_집중_유형(gen, name):
+    gen.addText(f"{name}님의 중반 집중 유형", (x + coef_x, y), font_size=10)
+    gen.addText("중반 10분은 실행된 시간에 관계 없이 초반 10분과 후반 10분을 제외한", (x + coef_x, y - step * 1), font_size=9)
+    gen.addText("나머지 시간을 10분으로 요약해 나타냅니다. 즉, 중반 10분간의", (x + coef_x, y - step * 2), font_size=9)
+    gen.addText(f"두뇌 가동률 변화 추이는 대상의 전체적인 가동률을 대변합니다. {name}님의", (x + coef_x, y - step * 3), font_size=9)
+    gen.addText("중반 두뇌 가동률 변화 추이는 상승을 하는 경향을 보이며, 이는 집중력의", (x + coef_x, y - step * 4), font_size=9)
+    gen.addText("강도를 꾸준히 올리는 유형입니다.", (x + coef_x, y - step * 5), font_size=9)
+    
+# 후반 집중 유형
+
+def 낮은_후반_집중_유형(gen, name):
+    gen.addText(f"{name}님의 후반 집중 유형", (x, y + coef_y), font_size=10)
+    gen.addText("후반 10분동안의 두뇌 가동률 변화 추이는 대상이 집중함에 있어 공부", (x, y + coef_y - step * 1), font_size=9)
+    gen.addText(f"마무리 단계에서 어떤 자세를 취하는지를 유추 할 수 있습니다.  {name}님의 ", (x, y + coef_y - step * 2), font_size=9)
+    gen.addText("후반 두뇌 가동률 변화 추이는 하락을 하는 경향을 보이며, 이는 본인의", (x, y + coef_y - step * 3), font_size=9)
+    gen.addText("과제를 점검하며 되돌아보며 마무리 하는 유형입니다.", (x, y + coef_y - step * 4), font_size=9)
+    
+def 높은_후반_집중_유형(gen, name):
+    gen.addText(f"{name}님의 후반 집중 유형", (x, y + coef_y), font_size=10)
+    gen.addText("후반 10분동안의 두뇌 가동률 변화 추이는 대상이 집중함에 있어 공부", (x, y + coef_y - step * 1), font_size=9)
+    gen.addText(f"마무리 단계에서 어떤 자세를 취하는지를 유추 할 수 있습니다.  {name}님의 ", (x, y + coef_y - step * 2), font_size=9)
+    gen.addText("후반 두뇌 가동률 변화 추이는 상승을 하는 경향을 보이며, 이는 높은", (x, y + coef_y - step * 3), font_size=9)
+    gen.addText("퍼포먼스로 집중을 마무리 하는 유형입니다.", (x, y + coef_y - step * 4), font_size=9)
+    
+# 두뇌 가동률 변화 유형
+
+def 낮은_두뇌_가동률_변화_유형(gen, name):
+    gen.addText(f"{name}님의 두뇌 가동률 변화량 유형", (x + coef_x, y + coef_y), font_size=10)
+    gen.addText("변화량은 두뇌 가동률 변화 추이 표준 편차라고도 표현합니다. 가동률 ", (x + coef_x, y + coef_y - step * 1), font_size=9)
+    gen.addText("변화량은 각각의 사용마다 일정한 가동률이 발현되었는지를 알려주는", (x + coef_x, y + coef_y - step * 2), font_size=9)
+    gen.addText(f"지표입니다. {name}님의 변화량은 낮음으로, 일정한 난도의 상황에서", (x + coef_x, y + coef_y - step * 3), font_size=9)
+    gen.addText("집중을 하였습니다.", (x + coef_x, y + coef_y - step * 4), font_size=9)
+
+def 높은_두뇌_가동률_변화_유형(gen, name):
+    gen.addText(f"{name}님의 두뇌 가동률 변화량 유형", (x + coef_x, y + coef_y), font_size=10)
+    gen.addText("변화량은 두뇌 가동률 변화 추이 표준 편차라고도 표현합니다. 가동률 ", (x + coef_x, y + coef_y - step * 1), font_size=9)
+    gen.addText("변화량은 각각의 사용마다 일정한 가동률이 발현되었는지를 알려주는", (x + coef_x, y + coef_y - step * 2), font_size=9)
+    gen.addText(f"지표입니다. {name}님의 변화량은 높음으로, 다양한 난도의 상황에서", (x + coef_x, y + coef_y - step * 3), font_size=9)
+    gen.addText("집중을 하였습니다.", (x + coef_x, y + coef_y - step * 4), font_size=9)
 
 
-def draw_R(gen):
-    gen.addText("R(Relax)는 안정형입니다. 안정형의 사람들은 공부 초반에 두뇌 가동률이", (20, 310), font_size=9)
-    gen.addText("감소하는 경향을 보이며, 주어진 과제를 탐색하고 적응해가는 성향이", (20, 298), font_size=9)
-    gen.addText("있습니다. ", (20, 286), font_size=9)
+def generate_집중유형_list(df):
+    data_array = get_summarized_brain_energy(df)
+    meaned_data_array = np.mean(data_array, axis=0)
+    집중유형 = ["높음", "높음", "높음", "높음"]
 
+    # 1. 10개 단위로 자른다.
+    first = meaned_data_array[0:10]
+    third = meaned_data_array[-10:]
+    second = meaned_data_array[10:-10]
+    fourth = np.mean(np.std(data_array, axis=0))
 
-def draw_E(gen):
-    gen.addText("E(kEep)는 유지형입니다. 유지형의 사람들은 공부 중반에 두뇌 가동률이", (20, 270), font_size=9)
-    gen.addText("유지 혹은 상승하는 경향을 보이며,  공부 페이스를 끌어 올리는 성향이", (20, 258), font_size=9)
-    gen.addText("있습니다. ", (20, 246), font_size=9)
+    x = [i / 10 + 0.1 for i in range(10)]
 
+    # 2. 각각의 기울기를 구한다.
+    slope_first, _ = np.polyfit(x, first, 1)
+    slope_second, _ = np.polyfit(x, second, 1)
+    slope_third, _ = np.polyfit(x, third, 1)
+    slope_fourth = get_fourth_slope(fourth)
 
-def draw_I(gen):
-    gen.addText(
-        "I(Imbalance)는 변동형입니다. 변동형의 사람들은 공부 중반에 두뇌 가동률이 ", (20, 270), font_size=9
-    )
-    gen.addText("감소하는 경향을 보이며, 공부 페이스를 조절하는 성향이", (20, 260), font_size=9)
-    gen.addText("있습니다. ", (20, 246), font_size=9)
+    if slope_first < 0:
+        집중유형[0] = "낮음"
+    if slope_second < 0:
+        집중유형[1] = "낮음"
+    if slope_third < 0:
+        집중유형[2] = "낮음"
+    if slope_fourth < 0:
+        집중유형[3] = "낮음"
 
+    return 집중유형
 
-def draw_L(gen):
-    gen.addText("L(Late)는 뒷심형입니다. 뒷심형의 사람들은 후반에 두뇌 가동이", (20, 230), font_size=9)
-    gen.addText("상승하는 경향을 보이며, 높은 퍼포먼스로", (20, 218), font_size=9)
-    gen.addText("공부를 마무리합니다.", (20, 206), font_size=9)
+유형_plot_dict = [
+    {
+        "낮음" : 낮은_초반_집중_유형,
+        "높음" : 높은_초반_집중_유형,
+    },
+    {
+        "낮음" : 낮은_중반_집중_유형,
+        "높음" : 높은_중반_집중_유형,
+    },
+    {
+        "낮음" : 낮은_후반_집중_유형,
+        "높음" : 높은_후반_집중_유형,
+    },
+    {
+        "낮음" : 낮은_두뇌_가동률_변화_유형,
+        "높음" : 높은_두뇌_가동률_변화_유형,
+    },
+]
 
-
-def draw_A(gen):
-    gen.addText("A(eArly)는 차분형입니다. 차분형의 사람들은 후반에 두뇌 가동이", (20, 230), font_size=9)
-    gen.addText("감소하는 경향을 보이며, 자신이 했던 공부를 점검하고", (20, 218), font_size=9)
-    gen.addText("되돌아보며 마무리하는 성향이 있습니다.", (20, 206), font_size=9)
-
-
-def draw_V(gen):
-    gen.addText("V(Various)는 변화형입니다. 변화형의 사람들은 전체적인 두뇌 가동 변화의", (20, 190), font_size=9)
-    gen.addText("표준 편차가 큽니다. 다양한 난이도의 공부를 한다고 볼 수 있습니다.", (20, 178), font_size=9)
-
-
-def draw_S(gen):
-    gen.addText("S(Stable)은 지속형입니다. 지속형의 사람들은 전체적인 두뇌 가동 변화의", (20, 190), font_size=9)
-    gen.addText("표준 편차가 작습니다. 일정한 난이도의 공부를 한다고 볼 수 있습니다.", (20, 178), font_size=9)
-
-
-bti_2_function = {
-    "d": draw_D,
-    "r": draw_R,
-    "e": draw_E,
-    "i": draw_I,
-    "l": draw_L,
-    "a": draw_A,
-    "v": draw_V,
-    "s": draw_S,
-}
-
-
-def generate_두뇌가동유형(df, name, date):
-    mbti = generate_뇌BTI결과(df, name)
+def generate_집중유형(df, name, date):
+    
     generate_두뇌가동률변화추이(df, name)
-
-    gen = GenerateFromTemplate("report_template/뇌BTI.pdf")
+    gen = GenerateFromTemplate("report_template_new/집중유형.pdf")
     gen.addText(date.strftime("%Y년 %m월 %d일"), (129, 790), font_size=9)
     gen.addText(
         (date + timedelta(days=6)).strftime(" ~ %Y년 %m월 %d일"), (200, 790), font_size=9
@@ -78,63 +134,22 @@ def generate_두뇌가동유형(df, name, date):
     공부규칙성_x, 공부규칙성_y = -53, 425
     공부규칙성_step = 28
     공부규칙성_scale = 0.29
-
+        
     gen.addGraphics(
         (공부규칙성_x + 공부규칙성_step * 0, 공부규칙성_y),
         f"{name}/두뇌가동률변화추이.png",
         scale=공부규칙성_scale,
-    )  # 일
-
-    mbti_x, mbti_y = 300, 160
-    mbti_step = 50
-    mbti_scale = 0.4
-
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 3), f"{name}/폭발.png", scale=mbti_scale
-    )
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 2), f"{name}/유지.png", scale=mbti_scale
-    )
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 1), f"{name}/결정.png", scale=mbti_scale
-    )
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 0), f"{name}/변화.png", scale=mbti_scale
     )
 
-    mbti_x, mbti_y = 305, -150
-    mbti_step = 50
-    mbti_scale = 0.125
+    집중유형 = generate_집중유형_list(df)
 
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 3), f"{name}/폭발_text.png", scale=mbti_scale
-    )
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 2), f"{name}/유지_text.png", scale=mbti_scale
-    )
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 1), f"{name}/결정_text.png", scale=mbti_scale
-    )
-    gen.addGraphics(
-        (mbti_x, mbti_y + mbti_step * 0), f"{name}/변화_text.png", scale=mbti_scale
-    )
+    for i, func in enumerate(유형_plot_dict):
+        func[집중유형[i]](gen, name)
 
-    title_x, title_y = 410, 335
-    title_step = 50
-
-    gen.addText("폭발", ((title_x, title_y - title_step * 0)), font_size=9)
-    gen.addText("유지", ((title_x, title_y - title_step * 1)), font_size=9)
-    gen.addText("결정", ((title_x, title_y - title_step * 2)), font_size=9)
-    gen.addText("변화", ((title_x, title_y - title_step * 3)), font_size=9)
-
-    gen.drawText(
-        f"{name} 님의 두뇌 유형은 {''.join(mbti).upper()}형입니다.", (20, 325), font_size=10
-    )
-
-    for letter in mbti:
-        bti_2_function[letter](gen=gen)
 
     gen.merge()
-    gen.generate(f"output/{name}_뇌BTI.pdf")
+    gen.generate(f"output/{name}_집중유형.pdf")
 
-    return f"output/{name}_뇌BTI.pdf"
+    pdf_path = f"output/{name}_집중유형.pdf"
+
+    return pdf_path

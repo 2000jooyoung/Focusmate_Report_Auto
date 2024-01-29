@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import s3fs
 
 # Gradient Color Bar Plots
@@ -240,7 +239,6 @@ def gradientbars(bars, ydata, cmap):
         x, y = bar.get_xy()
         w, h = bar.get_width(), bar.get_height()
         grad = np.atleast_2d(np.linspace(0, 1 * h / max(ydata), 256)).T
-        #         print(grad)
         ax.imshow(
             grad,
             extent=[x, x + w, y, y + h],

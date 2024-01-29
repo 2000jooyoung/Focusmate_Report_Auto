@@ -52,18 +52,7 @@ class MongoDBChecker:
         utc_plus_9 = pytz.timezone("Asia/Tokyo")
         utc = pytz.timezone("UTC")
         start_time = utc.localize(start_time).astimezone(utc_plus_9)
-        print(start_time)
         return datetime.fromtimestamp(start_time.timestamp()), None
-
-        return datetime.fromtimestamp(
-            (
-                start_time - timedelta(minutes=start_delay) - timedelta(hours=18)
-            ).timestamp()
-        ), datetime.fromtimestamp(
-            (
-                start_time + timedelta(minutes=end_delay) - timedelta(hours=18)
-            ).timestamp()
-        )
 
     def get_focustimer_id_from_user_id(
         self, user_id: str, start_time: datetime
@@ -76,8 +65,6 @@ class MongoDBChecker:
         focustimer_collection: pymongo.collection.Collection = db["focustimers"]
 
         start_timestamp, end_timestamp = self._convert_timestamp(start_time)
-
-        print(start_time, start_timestamp, end_timestamp)
 
         query = {
             "userId": user_id,
@@ -119,7 +106,7 @@ class MongoDBChecker:
 
         for idx, element in enumerate(result):
             result[idx] = {
-                "goalId" : element["goalId"],
+                "goalId": element["goalId"],
                 "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
                 "startedAt": self._convert_timestamp(element["startedAt"])[0],
                 "time": element["time"],
@@ -332,10 +319,6 @@ def add_ids_in_df(df: pd.DataFrame) -> pd.DataFrame:
         result = checker.get_focustimer_ids_from_user_id_and_range(
             user_id, row["datetime"].tz_localize(UTC), timedelta(minutes=1)
         )
-
-        print(row["Name"], row["Label"], row["Trial"], user_id)
-        print(result)
-
         try:
             user_ids.append(result[-1]["userId"])
             focus_timer_ids.append(result[-1]["_id"])
@@ -411,10 +394,11 @@ def get_data_from_db(user_id, date, checker):
 def date_treatement(df):
     df = df[df["time"] > 0]
 
-    df["startedAt"] = pd.to_datetime(df["startedAt"])
-    df["endAt"] = pd.to_datetime(df["endAt"])
+    df.loc[:, "startedAt"] = pd.to_datetime(df["startedAt"])
+    df.loc[:, "endAt"] = pd.to_datetime(df["endAt"])
 
-    df["duration"] = (df["endAt"] - df["startedAt"]).dt.total_seconds()
+    df = df.copy()
+    df.loc[:, "duration"] = (df["endAt"] - df["startedAt"]).dt.total_seconds()
 
     result_df = df.groupby("date")["duration"].sum().reset_index()
 
@@ -489,8 +473,6 @@ def get_boa_bor(user_id, focus_id, dev_mode=True):
 
         abs_beta_gamma = (abs_beta_gamma1 + abs_beta_gamma2) / 2
 
-        print(beta2)
-
         abs_brain_energies = [abs_mapping_to_energy(bet) for bet in abs_beta_gamma]
 
         return (
@@ -539,11 +521,14 @@ def get_boas(df):
 def add_summed_total_goal_in_df(df):
     df["summed_total_goal"] = 0
     grouped_by_date = df.groupby("date")
-    
+
     for date, group_df in grouped_by_date:
-        df.loc[df["date"] == date, "summed_total_goal"] = sum(group_df.drop_duplicates(subset="goalId", keep="first")["goalTime"])
-        
+        df.loc[df["date"] == date, "summed_total_goal"] = sum(
+            group_df.drop_duplicates(subset="goalId", keep="first")["goalTime"]
+        )
+
     return df
+
 
 def add_mean_and_sum_features_to_df(df):
 

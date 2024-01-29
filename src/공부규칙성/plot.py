@@ -42,7 +42,6 @@ def generate_공부규칙성1(df, name):
     weeks = create_week(df.weekday)
 
     for start, end, week in zip(start_ranges, end_ranges, weeks):
-        print(start, end)
         source = pd.DataFrame(
             {
                 "x": [0, 1],

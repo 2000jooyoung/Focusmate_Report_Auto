@@ -6,9 +6,13 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 
-font_path = "/Users/jooyoung/Downloads/Noto_Sans_KR/static/NotoSansKR-Light.ttf"
+font_path = "fonts/Noto_Sans_KR/static/NotoSansKR-Light.ttf"
 
 pdfmetrics.registerFont(TTFont("NotoSansKR", font_path))
+
+font_path = "fonts/Noto_Sans_KR/static/NotoSansKR-Bold.ttf"
+
+pdfmetrics.registerFont(TTFont("NotoSansKR-Bold", font_path)) # mmecoco 폰트 관리 코드 작성
 
 
 def drawText(c, text, x, y, font_size):

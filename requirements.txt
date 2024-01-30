@@ -1,0 +1,9 @@
+pillow
+reportlab
+PyPDF2
+matplotlib
+scipy
+altair
+pytz
+pymongo
+vl-convert-python

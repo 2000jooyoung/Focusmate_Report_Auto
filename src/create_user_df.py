@@ -1,20 +1,15 @@
-import json
 import random
 from datetime import datetime, timedelta
 from typing import Any, List, Optional, Tuple
-
-import boto3
 import numpy as np
 import pandas as pd
 import pymongo
-import s3fs
 from bson import ObjectId
 from pytz import UTC
 from scipy import signal
 import pytz
+from src.Repositories.MongoDBRepository import MongoDBRepository
 
-
-from src.eeg_treatement import *
 
 connection_string = "mongodb://looxidlabs:looxidlabs.vkdlxld!@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
 
@@ -414,71 +409,18 @@ def date_treatement(df):
     return df, merged_df
 
 
-def load_raw_data_list(user_id, focus_id, bucket):
-    sf = s3fs.S3FileSystem(anon=False)
-    path_obj = f"{bucket}/focus-timer/{user_id}/{focus_id}"
-    raw_data_files = sf.glob(f"{path_obj}//**")
-    raw_data_files.sort()
-
-    return raw_data_files
-
-
 def get_boa_bor(user_id, focus_id, dev_mode=True):
-    if dev_mode == False:
-        bucket = "focusmate-public"
-    else:
-        bucket = "focusmate-public-dev"
-    sf = s3fs.S3FileSystem(anon=False)
-    s3 = boto3.resource("s3")
-    raw_data_files = load_raw_data_list(user_id, focus_id, bucket)
-    raw_data_files = load_raw_data_list(user_id, focus_id, bucket)
 
-    total_raw_ch1 = []
-    total_raw_ch2 = []
-
+    mongo_repository = MongoDBRepository()
+    mongo_repository.connect("mongodb://looxidlabs:looxidlabs.vkdlxld%21@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false", dev_mode=dev_mode)
+    
     try:
-        for raw_data_file in raw_data_files:
-            path_split = raw_data_file.split("/")
-            key1 = path_split[0]
-            key2 = f"{path_split[1]}/{path_split[2]}/{path_split[3]}/{path_split[4]}"
-            uploaded_file_s3_obj = s3.Object(key1, key2)
-            raw_json = json.loads(uploaded_file_s3_obj.get()["Body"].read())
-
-            eeg_raw_ch1 = raw_json["eegChannel1"]
-            eeg_raw_ch2 = raw_json["eegChannel2"]
-
-            lead_off_ch1 = raw_json["eegChannel1LeadOff"]
-            ppg = raw_json["ppg"]
-
-            total_raw_ch1 += eeg_raw_ch1
-            total_raw_ch2 += eeg_raw_ch2
-
-        filtered_ch1 = apply_filter(total_raw_ch1)
-        filtered_ch2 = apply_filter(total_raw_ch2)
-
-        f1, fft1 = calculate_psd_from_fft(filtered_ch1, 250, False)  # 1초 단위라서 250
-        f2, fft2 = calculate_psd_from_fft(filtered_ch2, 250, False)  # 1초 단위라서 250
-
-        delta1, theta1, alpha1, beta1, gamma1 = get_eeg_frequency(fft1)
-        delta2, theta2, alpha2, beta2, gamma2 = get_eeg_frequency(fft2)
-
-        beta1 = chunk_data(beta1, 10)
-        gamma1 = chunk_data(gamma1, 10)
-
-        beta2 = chunk_data(beta2, 10)
-        gamma2 = chunk_data(gamma2, 10)
-
-        abs_beta_gamma1 = np.log10(beta1) + np.log10(gamma1)
-        abs_beta_gamma2 = np.log10(beta2) + np.log10(gamma2)
-
-        abs_beta_gamma = (abs_beta_gamma1 + abs_beta_gamma2) / 2
-
-        abs_brain_energies = [abs_mapping_to_energy(bet) for bet in abs_beta_gamma]
+        total_efficiencies = np.array(mongo_repository.get_total_efficiencies_from_focus_id(focus_id=focus_id)) / 100
 
         return (
-            get_proportion(abs_brain_energies),
-            np.mean(abs_brain_energies),
-            abs_brain_energies,
+            get_proportion(total_efficiencies),
+            np.mean(total_efficiencies),
+            total_efficiencies,
         )
     except Exception as e:
         print(e)

@@ -41,13 +41,13 @@ def make_color_transparent(input_path, output_path, target_color_hex):
 
 def create_week(weekday):
     en_2_kr = {
-        "Monday": "월",
-        "Tuesday": "화",
-        "Wednesday": "수",
-        "Thursday": "목",
-        "Friday": "금",
-        "Saturday": "토",
-        "Sunday": "일",
+        "Monday": "mon",
+        "Tuesday": "tue",
+        "Wednesday": "wed",
+        "Thursday": "thu",
+        "Friday": "fri",
+        "Saturday": "sat",
+        "Sunday": "sun",
     }
     new_weekdays = []
     for week in weekday:
@@ -59,3 +59,19 @@ def create_week(weekday):
 def create_date_string(first_date: datetime):
     dates = [first_date + timedelta(days=i) for i in range(7)]
     return [date.strftime("%m.%d") for date in dates]
+
+
+def eng_week_2_korean_week(weeks):
+    kr_2_eng = {
+        "mon" : "월",
+        "tue" : "화",
+        "wed" : "수",
+        "thu" : "목",
+        "fri" : "금",
+        "sat" : "토",
+        "sun" : "일",
+    }
+    
+    eng_weeks = [kr_2_eng[week] for week in weeks]
+    
+    return eng_weeks

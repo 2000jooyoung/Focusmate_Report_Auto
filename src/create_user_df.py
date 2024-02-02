@@ -76,6 +76,67 @@ class MongoDBChecker:
         except IndexError:
             return None
 
+    def get_email_from_user_id(
+        self, user_id : str
+    ) -> Optional[str]:
+        db: pymongo.database.Database = self.client[self.db_name]
+        focustimer_collection: pymongo.collection.Collection = db["users"]
+        
+        query = {
+            "_id": ObjectId(user_id)
+        }
+        result = list(focustimer_collection.find(query))
+        
+        if result == []:
+            return None
+        else:
+            return result[0]["email"]
+
+    def get_focustimer_ids_from_range_for_each_user_ids(
+        self, start_time: datetime, duration: timedelta
+    ) -> Optional[List[str]]:
+        """
+        gets all needed focus_id datas only from range and split
+        into chunk of dfs by their userid
+        """
+
+        db: pymongo.database.Database = self.client[self.db_name]
+        focustimer_collection: pymongo.collection.Collection = db["focustimers"]
+
+        query = {
+            "startedAt": {
+                "$gte": start_time,
+                "$lte": start_time
+                + duration
+                + timedelta(hours=23)
+                + timedelta(minutes=59),
+            },
+        }
+
+        result = list(focustimer_collection.find(query))
+
+        for idx, element in enumerate(result):
+            result[idx] = {
+                "email" : self.get_email_from_user_id(user_id=element["userId"]),
+                "goalId": element["goalId"],
+                "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
+                "startedAt": self._convert_timestamp(element["startedAt"])[0],
+                "time": element["time"],
+                "endAt": self._convert_timestamp(
+                    element["startedAt"] + timedelta(seconds=element["time"])
+                )[0],
+                "focusId": element["_id"],
+                "userId": element["userId"],
+                "date": self._convert_timestamp(element["startedAt"])[0].date(),
+                "weekday": self._convert_timestamp(element["startedAt"])[0].strftime(
+                    "%A"
+                ),
+            }
+
+        result_df = pd.DataFrame(result)
+
+        return [group for _, group in result_df.groupby('userId')]
+
     def get_focustimer_ids_from_user_id_and_range(
         self, user_id: str, start_time: datetime, duration: timedelta
     ) -> Optional[List[str]]:
@@ -101,6 +162,7 @@ class MongoDBChecker:
 
         for idx, element in enumerate(result):
             result[idx] = {
+                "email" : self.get_email_from_user_id(user_id=user_id),
                 "goalId": element["goalId"],
                 "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
                 "startedAt": self._convert_timestamp(element["startedAt"])[0],
@@ -471,6 +533,19 @@ def add_summed_total_goal_in_df(df):
 
     return df
 
+def get_summed_abs_brain_energies_from_df(df):
+    
+    boas = []
+    for _, value in df.iterrows():
+        day = value["weekday"]
+        boa = np.sum(value["abs_brain_energies"])
+
+        boas.append(boa)
+        
+    df["abs_brain_energie"] = boas
+    df["summed_abs_brain_energies"] = df.groupby("date")["abs_brain_energie"].transform("sum")
+    
+    return df
 
 def add_mean_and_sum_features_to_df(df):
 
@@ -484,6 +559,9 @@ def add_mean_and_sum_features_to_df(df):
     df["summed_total_boa"] = df.groupby("date")["total_boa"].transform("sum")
     df["summed_total_duration"] = df.groupby("date")["duration"].transform("sum")
     df = add_summed_total_goal_in_df(df)
+    df = get_summed_abs_brain_energies_from_df(df)
+    df["summed_time"] = df.groupby("date")["time"].transform("sum")
+#     df = ["summed_goal_proportion"] = df.groupby("date")["summed_time"].transform("sum") 이미 있는거같은데
 
     return df
 
@@ -549,7 +627,7 @@ def missing_week_treatement(df):
 
 def sort_df_bt_weekday(df):
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
+    
     max_time_rows = df.loc[df.groupby("weekday")["time"].idxmax()]
 
     weekday_order = [
@@ -569,76 +647,84 @@ def sort_df_bt_weekday(df):
     return sorted_df
 
 
-def create_user_df(user_id, date):
+def create_user_df(date):
     checker = MongoDBChecker(connection_string, dev_mode=False)
-    df = get_data_from_db(user_id, date, checker)
+    dfs = checker.get_focustimer_ids_from_range_for_each_user_ids(date, timedelta(days=6))
+    
+    final_dfs = []
+    for df in dfs:
 
-    df, merged_df = date_treatement(df)
+        if df[df["time"] > 30 * 60].empty: # 30분 이상 하나라도 있어야함
+            continue
+        df, merged_df = date_treatement(df)
 
-    time_variation_col = []
-    duration_col = []
+        time_variation_col = []
+        duration_col = []
 
-    for _, row in df.iterrows():
-        time_variation_col.append(
-            list(merged_df[merged_df["date"] == str(row["date"])]["time_variation"])[0]
+        for _, row in df.iterrows():
+            time_variation_col.append(
+                list(merged_df[merged_df["date"] == str(row["date"])]["time_variation"])[0]
+            )
+            duration_col.append(
+                list(merged_df[merged_df["date"] == str(row["date"])]["duration"])[0]
+            )
+
+        df["time_variation"] = time_variation_col
+        # df["duration"] = duration_col
+        df["goalAccomplished"] = True  # 여기서는 목표설정 잘 해야함 원래대로
+
+        (
+            boas,
+            veryHighFocus,
+            highFocus,
+            middleFocus,
+            lowFocus,
+            abs_brain_energies_list,
+        ) = get_boas(df)
+
+        df["boa"] = boas
+        df["veryHighFocus"] = veryHighFocus
+        df["highFocus"] = highFocus
+        df["middleFocus"] = middleFocus
+        df["lowFocus"] = lowFocus
+        df["abs_brain_energies"] = abs_brain_energies_list
+
+        total_boa = []
+        for _, value in df.iterrows():
+            total_boa.append(np.sum(value["abs_brain_energies"]))
+        df["total_boa"] = total_boa
+
+        df["goalProportion"] = df["duration"] - df["goalTime"]
+        df.loc[df["time"] < 600, "goalProportion"] = 0
+        df["goalAccomplished"] = df["goalProportion"] >= 0
+        df = add_mean_and_sum_features_to_df(df)
+        df = missing_week_treatement(df)
+        df = sort_df_bt_weekday(df)
+
+        weekday_order = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ]
+
+        target_week = df.sort_values("startedAt")["weekday"].iloc[0]
+        week_index = weekday_order.index(target_week)
+
+        new_weekday_order = weekday_order[week_index:] + weekday_order[:week_index]
+
+        df.sort_values(
+            by="weekday",
+            key=lambda x: x.map({day: i for i, day in enumerate(new_weekday_order)}),
+            inplace=True,
         )
-        duration_col.append(
-            list(merged_df[merged_df["date"] == str(row["date"])]["duration"])[0]
-        )
 
-    df["time_variation"] = time_variation_col
-    # df["duration"] = duration_col
-    df["goalAccomplished"] = True  # 여기서는 목표설정 잘 해야함 원래대로
-
-    (
-        boas,
-        veryHighFocus,
-        highFocus,
-        middleFocus,
-        lowFocus,
-        abs_brain_energies_list,
-    ) = get_boas(df)
-
-    df["boa"] = boas
-    df["veryHighFocus"] = veryHighFocus
-    df["highFocus"] = highFocus
-    df["middleFocus"] = middleFocus
-    df["lowFocus"] = lowFocus
-    df["abs_brain_energies"] = abs_brain_energies_list
-
-    total_boa = []
-    for _, value in df.iterrows():
-        total_boa.append(np.sum(value["abs_brain_energies"]))
-    df["total_boa"] = total_boa
-
-    df["goalProportion"] = df["duration"] - df["goalTime"]
-    df.loc[df["time"] < 600, "goalProportion"] = 0
-    df["goalAccomplished"] = df["goalProportion"] >= 0
-    df = add_mean_and_sum_features_to_df(df)
-    df = missing_week_treatement(df)
-    df = sort_df_bt_weekday(df)
-
-    weekday_order = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-    ]
-
-    target_week = df.sort_values("startedAt")["weekday"].iloc[0]
-    week_index = weekday_order.index(target_week)
-
-    new_weekday_order = weekday_order[week_index:] + weekday_order[:week_index]
-
-    df.sort_values(
-        by="weekday",
-        key=lambda x: x.map({day: i for i, day in enumerate(new_weekday_order)}),
-        inplace=True,
-    )
-
-    df["summed_goal_proportion"] = df["summed_total_duration"] - df["summed_total_goal"]
-    df["summed_goal_proportion"] = df["summed_goal_proportion"].fillna(0)
-    return df
+        df["summed_goal_proportion"] = df["summed_total_duration"] - df["summed_total_goal"]
+        df["summed_goal_proportion"] = df["summed_goal_proportion"].fillna(0)
+        
+        final_dfs.append(df)
+        
+    return final_dfs

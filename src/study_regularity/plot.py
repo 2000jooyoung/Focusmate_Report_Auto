@@ -96,6 +96,8 @@ def save_공부_규칙성_2(data, name):
     plt.savefig(f"images/study_regularity2.png", transparent=True)
     make_color_transparent(f"images/study_regularity2.png", f"images/study_regularity2.png", "#FFFFFF")
     resize_image(f"images/study_regularity2.png", f"images/study_regularity2.png", (2000, 2000))
+    
+    plt.close()
 
 
 def generate_study_regularity2(df, name):

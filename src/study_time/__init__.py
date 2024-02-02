@@ -37,13 +37,13 @@ def generate_study_time(df, name, date):
     df_without_zeros = df[df["time"] > 0]
 
     평균_주간_study_time = datetime(2000, 3, 17, 0) + timedelta(
-        seconds=np.mean(df_without_zeros.time)
+        seconds=np.mean(df_without_zeros.summed_time)
     )
     최대_주간_study_time = datetime(2000, 3, 17, 0) + timedelta(
-        seconds=np.max(df_without_zeros.time)
+        seconds=np.max(df_without_zeros.summed_time)
     )
     최소_주간_study_time = datetime(2000, 3, 17, 0) + timedelta(
-        seconds=np.min(df_without_zeros.time)
+        seconds=np.min(df_without_zeros.summed_time)
     )
     공부_시간_변화량 = np.diff(df.summed_total_duration)
 

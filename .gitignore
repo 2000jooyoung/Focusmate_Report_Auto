@@ -1,5 +1,7 @@
-./data/*
-./output/*
+data
+output
 ./박해원/*
 ./이민주/*
 .DS_Store
+images
+*.ipynb

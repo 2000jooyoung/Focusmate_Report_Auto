@@ -107,11 +107,6 @@ bti_2_function = {
     "b" : text_for_b,
     "l" : text_for_l,
 }
-
-
-def get_neuroprofile(df):
-    profile = []
-    
     
 
 def generate_neuroprofile(df, name, date):
@@ -134,10 +129,14 @@ def generate_neuroprofile(df, name, date):
     gen.addGraphics((80, 450), f"images/daily_total_study_time.png", scale=0.5)
 
     # bor
+    df_without_zeros = df[df["time"] > 0]
+    평균bor = np.mean(
+        [element.mean() for element in df_without_zeros.abs_brain_energies]
+    )
     gen.addGraphics((352, 395), f"images/meaned_bor_proportion.png", scale=0.3)
     gen.addText("평균", (439, 482), font_size=10)
     gen.addText("두뇌 가동률", (424, 467), font_size=10)
-    gen.addText("77%", (439, 452), font_size=11) # mmecoco 퍼센트 가져오기
+    gen.addText(f"{round(평균bor * 100)}%", (439, 452), font_size=11) # mmecoco 퍼센트 가져오기
 
     # study_regularity
     gen.addGraphics((70, 214), f"images/study_regularity.png", scale=0.2)

@@ -80,7 +80,14 @@ def plot_and_save_평균두뇌활동비율(df, name):
     make_color_transparent(f"images/meaned_bor_proportion.png", f"images/meaned_bor_proportion.png", "#FFFFFF")
     resize_image(f"images/meaned_bor_proportion.png", f"images/meaned_bor_proportion.png", (640, 480))
     
-    if round(np.mean(values)) <= 46:
+    plt.close()
+    
+    df_without_zeros = df[df["time"] > 0]
+    평균bor = np.mean(
+        [element.mean() for element in df_without_zeros.abs_brain_energies]
+    )
+    
+    if round(round(평균bor * 100)) <= 45:
         return "d"
     else:
         return "h"
@@ -191,6 +198,8 @@ def plot_and_save_study_regularity(df, name):
     plt.savefig(f"images/study_regularity.png")
     make_color_transparent(f"images/study_regularity.png", f"images/study_regularity.png", "#FFFFFF")
     
+    plt.close()
+    
     if max(counts_list) <= 4:
         return "r"
     else:
@@ -251,6 +260,8 @@ def plot_and_save_focus_type(df, name):
 
     fig.savefig(f"images/focus_type.png")
     make_color_transparent(f"images/focus_type.png", f"images/focus_type.png", "#FFFFFF")
+    
+    plt.close()
     
     if first_slope < last_slope:
         return "l"

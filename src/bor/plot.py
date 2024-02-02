@@ -56,7 +56,7 @@ def generate_daily_boa(df, name):
     boas = []
     for _, value in df.iterrows():
         day = value["weekday"]
-        boa = np.sum(value["abs_brain_energies"])
+        boa = np.sum(value["summed_abs_brain_energies"])
 
         days.append(day)
         boas.append(boa)
@@ -173,8 +173,13 @@ def generate_평균두뇌활동비율(df, name):
     colors = ["#E2BEFF", "#C084EF", "#9494FF", "#6266EA"]
 
     wedgeprops = {"width": 0.3, "edgecolor": "w", "lw": 3}
+    
+    fig, ax = plt.subplots()
+    
     plt.pie(
         values, startangle=90, counterclock=False, colors=colors, wedgeprops=wedgeprops
     )
     plt.savefig(f"images/meaned_bor_proportion.png")
     make_color_transparent(f"images/meaned_bor_proportion.png", f"images/meaned_bor_proportion.png", "#FFFFFF")
+    
+    plt.close()

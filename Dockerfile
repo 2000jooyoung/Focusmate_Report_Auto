@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM --platform=linux/amd64 python:3.9
 
 WORKDIR /app
 
@@ -9,7 +9,6 @@ RUN pip3 install --no-cache-dir numpy==1.19.5
 RUN pip3 install --no-cache-dir pandas==1.1.5
 
 RUN pip3 install --no-cache-dir -r requirements.txt
-
 
 # In=
 COPY ./report_template ./report_template

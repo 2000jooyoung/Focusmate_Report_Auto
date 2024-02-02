@@ -242,8 +242,12 @@ def generate_평균study_time(hour, minute, name):
     colors = ["#9494FF", "#EFEFFA"]
 
     wedgeprops = {"width": 0.3, "edgecolor": "w", "lw": 3}
+    
+    fig, ax = plt.subplots()
     plt.pie(
         values, startangle=90, counterclock=False, colors=colors, wedgeprops=wedgeprops
     )
     plt.savefig(f"images/study_time.png")
     make_color_transparent(f"images/study_time.png", f"images/study_time.png", "#FFFFFF")
+
+    plt.close()

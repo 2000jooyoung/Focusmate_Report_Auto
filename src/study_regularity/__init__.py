@@ -52,7 +52,7 @@ def generate_study_regularity(df, name, date):
     )
     gen.addText(name, (510, 805), font_size=9)
 
-    study_regularity_x, study_regularity_y = 64, 432
+    study_regularity_x, study_regularity_y = 64, 448
     study_regularity_step = 28
     study_regularity_scale = 0.38
 

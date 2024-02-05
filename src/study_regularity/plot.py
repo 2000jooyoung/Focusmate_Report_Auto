@@ -42,8 +42,9 @@ def generate_study_regularity1(df, name):
 
     weeks = create_week(df.weekday)
     study_regularities = df.study_regularity
+    idx = 0
 
-    for idx, study_regularity_list in enumerate(study_regularities):
+    for study_regularity_list in study_regularities:
         for study_regularity_cls in study_regularity_list:
             source = study_regularity_cls.get_source_df()
             study_regularity = (
@@ -72,6 +73,7 @@ def generate_study_regularity1(df, name):
                 f"images/{study_regularity_cls.weekday}/study_regularity_{idx}.png",
                 "#FFFFFF",
             )
+            idx += 1
 
 
 def save_공부_규칙성_2(data, name):

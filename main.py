@@ -14,6 +14,7 @@ import os
 from PyPDF2 import PdfReader, PdfWriter
 import pytz
 import numpy as np
+import shutil
 
 
 def tmp_create_user_df():
@@ -76,10 +77,9 @@ condition_funcs = [
     check_if_abs_brain_energie_exists,
 ]
 
-if not os.path.exists(f"images/"):
-    os.makedirs(f"images/")
-
 for df in dfs:
+    if not os.path.exists(f"images/"):
+        os.makedirs(f"images/")
     complished_conditions = [condition_func(df) for condition_func in condition_funcs]
 
     if False in complished_conditions:
@@ -96,6 +96,7 @@ for df in dfs:
     output_path = f"output/{name}_report.pdf"
 
     merge_pdfs(output_path, input_paths)
-    break
+    
+    shutil.rmtree("images")
 
 # send_mail(subject=f"포커스메이트 {name}님 주간 리포트 결과", body="Oh Yeah", email="jooyoung.kim@looxidlabs.com", attachments=[output_path])

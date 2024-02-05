@@ -39,23 +39,27 @@ def study_session_factory(df):
 
 class StudySession:
     def __init__(self, starting_datetime, ending_datetime) -> None:
-        self.start = (starting_datetime.hour * 60 + starting_datetime.minute) / (24 * 60) * 100
-        self.end = (ending_datetime.hour * 60 + ending_datetime.minute) / (24 * 60) * 100
+        
+        self.start_hour = starting_datetime.hour
+        self.start_minute = starting_datetime.minute
+        self.end_hour = ending_datetime.hour
+        self.end_minute = ending_datetime.minute
         
         self.weekday = starting_datetime.strftime("%A")
         
-    def get_source_df(self):
+    def _convert_to_bar_from_time(self, hour, minute):
+        hour_coef = 100 / 24 # (이게 한시간이라는 뜻)
+        minute_coef = 100 / 24 / 60 # (이게 1분이라는 뜻)
         
-        if np.isnan(self.start):
-            self.start = 0
-        if np.isnan(self.end):
-            self.end = 0
+        return (hour * hour_coef + minute * minute_coef) - 4 * hour_coef
+        
+    def get_source_df(self):
         
         source = pd.DataFrame(
             {
                 "x": [0, 1],
-                "y1": [self.start - 17, 0],
-                "y2": [self.end - 17, 100],
+                "y1": [self._convert_to_bar_from_time(self.start_hour, self.start_minute), 0],
+                "y2": [self._convert_to_bar_from_time(self.end_hour, self.end_minute), 100],
                 "color": ["#9494FF", "#00000000"],
             }
         )

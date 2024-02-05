@@ -154,14 +154,16 @@ class MongoDBRepository(Repository):
                 start_time + timedelta(minutes=end_delay) - timedelta(hours=18)
             ).timestamp()
         )
-        
+
     def get_total_efficiencies_from_focus_id(self, focus_id):
         focus_timer_records = self.db["focustimerrecords"]
-        sepcific_focus_timer_records_list = list(focus_timer_records.find({'focusTimerId' : focus_id}))
-        
+        sepcific_focus_timer_records_list = list(
+            focus_timer_records.find({"focusTimerId": focus_id})
+        )
+
         total_efficiencies = []
         for seg in sepcific_focus_timer_records_list:
-            efficiencies = seg['efficiencies']
+            efficiencies = seg["efficiencies"]
             total_efficiencies += efficiencies
-                
+
         return total_efficiencies

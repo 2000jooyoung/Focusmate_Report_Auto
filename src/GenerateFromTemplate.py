@@ -12,7 +12,7 @@ pdfmetrics.registerFont(TTFont("NotoSansKR", font_path))
 
 font_path = "fonts/Noto_Sans_KR/static/NotoSansKR-Bold.ttf"
 
-pdfmetrics.registerFont(TTFont("NotoSansKR-Bold", font_path)) # mmecoco 폰트 관리 코드 작성
+pdfmetrics.registerFont(TTFont("NotoSansKR-Bold", font_path))  # mmecoco 폰트 관리 코드 작성
 
 
 def drawText(c, text, x, y, font_size):

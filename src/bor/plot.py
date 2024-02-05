@@ -155,7 +155,9 @@ def generate_daily_boa_text(axis_max_boa, axis_middle_boa, name):
     chart = chart.configure_view(stroke="transparent")
     chart.save(f"images/daily_boa_text_middle.png", scale_factor=1)
     make_color_transparent(
-        f"images/daily_boa_text_middle.png", f"images/daily_boa_text_middle.png", "#FFFFFF"
+        f"images/daily_boa_text_middle.png",
+        f"images/daily_boa_text_middle.png",
+        "#FFFFFF",
     )
 
 
@@ -173,13 +175,17 @@ def generate_평균두뇌활동비율(df, name):
     colors = ["#E2BEFF", "#C084EF", "#9494FF", "#6266EA"]
 
     wedgeprops = {"width": 0.3, "edgecolor": "w", "lw": 3}
-    
+
     fig, ax = plt.subplots()
-    
+
     plt.pie(
         values, startangle=90, counterclock=False, colors=colors, wedgeprops=wedgeprops
     )
     plt.savefig(f"images/meaned_bor_proportion.png")
-    make_color_transparent(f"images/meaned_bor_proportion.png", f"images/meaned_bor_proportion.png", "#FFFFFF")
-    
+    make_color_transparent(
+        f"images/meaned_bor_proportion.png",
+        f"images/meaned_bor_proportion.png",
+        "#FFFFFF",
+    )
+
     plt.close()

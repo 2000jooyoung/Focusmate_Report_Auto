@@ -15,17 +15,20 @@ from PyPDF2 import PdfReader, PdfWriter
 import pytz
 import numpy as np
 
+
 def tmp_create_user_df():
     return pd.read_csv("tmp.csv")
 
+
 def check_if_abs_brain_energie_exists(df):
     df_without_zeros = df[df["time"] > 0]
-    
+
     meaned_bor = np.mean(
         [element.mean() for element in df_without_zeros.abs_brain_energies]
     )
-    
+
     return np.isnan(meaned_bor) == False
+
 
 def merge_pdfs(output_path, input_paths):
     """
@@ -51,8 +54,9 @@ def merge_pdfs(output_path, input_paths):
 
     except Exception as e:
         print(f"Error: {e}")
-        
+
     return output_path
+
 
 # os.system("ls")
 print("report_template")
@@ -77,7 +81,7 @@ if not os.path.exists(f"images/"):
 
 for df in dfs:
     complished_conditions = [condition_func(df) for condition_func in condition_funcs]
-    
+
     if False in complished_conditions:
         continue
     name = list(df.email)[0]
@@ -92,5 +96,6 @@ for df in dfs:
     output_path = f"output/{name}_report.pdf"
 
     merge_pdfs(output_path, input_paths)
+    break
 
 # send_mail(subject=f"포커스메이트 {name}님 주간 리포트 결과", body="Oh Yeah", email="jooyoung.kim@looxidlabs.com", attachments=[output_path])

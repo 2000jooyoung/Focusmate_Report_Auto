@@ -14,6 +14,54 @@ from src.Repositories.MongoDBRepository import MongoDBRepository
 connection_string = "mongodb://looxidlabs:looxidlabs.vkdlxld!@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
 
 
+def study_session_factory(df):
+    weeks = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+    ]
+    study_sessions = []
+    
+    for week in weeks:
+        current_df = df[df["weekday"] == week]
+        current_study_sessions = []
+        
+        for _, row in current_df.iterrows():
+            start, end = row["startedAt"], row["endAt"]
+            current_study_sessions.append(StudySession(start, end))
+        study_sessions.append(current_study_sessions)
+        
+    return study_sessions
+
+class StudySession:
+    def __init__(self, starting_datetime, ending_datetime) -> None:
+        self.start = (starting_datetime.hour * 60 + starting_datetime.minute) / (24 * 60) * 100
+        self.end = (ending_datetime.hour * 60 + ending_datetime.minute) / (24 * 60) * 100
+        
+        self.weekday = starting_datetime.strftime("%A")
+        
+    def get_source_df(self):
+        
+        if np.isnan(self.start):
+            self.start = 0
+        if np.isnan(self.end):
+            self.end = 0
+        
+        source = pd.DataFrame(
+            {
+                "x": [0, 1],
+                "y1": [self.start - 17, 0],
+                "y2": [self.end - 17, 100],
+                "color": ["#9494FF", "#00000000"],
+            }
+        )
+        
+        return source
+
 class MongoDBChecker:
     def __init__(self, connection_string: str, dev_mode: bool = True) -> None:
         self.client: str = pymongo.MongoClient(connection_string)
@@ -76,17 +124,13 @@ class MongoDBChecker:
         except IndexError:
             return None
 
-    def get_email_from_user_id(
-        self, user_id : str
-    ) -> Optional[str]:
+    def get_email_from_user_id(self, user_id: str) -> Optional[str]:
         db: pymongo.database.Database = self.client[self.db_name]
         focustimer_collection: pymongo.collection.Collection = db["users"]
-        
-        query = {
-            "_id": ObjectId(user_id)
-        }
+
+        query = {"_id": ObjectId(user_id)}
         result = list(focustimer_collection.find(query))
-        
+
         if result == []:
             return None
         else:
@@ -117,7 +161,7 @@ class MongoDBChecker:
 
         for idx, element in enumerate(result):
             result[idx] = {
-                "email" : self.get_email_from_user_id(user_id=element["userId"]),
+                "email": self.get_email_from_user_id(user_id=element["userId"]),
                 "goalId": element["goalId"],
                 "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
                 "startedAt": self._convert_timestamp(element["startedAt"])[0],
@@ -135,7 +179,7 @@ class MongoDBChecker:
 
         result_df = pd.DataFrame(result)
 
-        return [group for _, group in result_df.groupby('userId')]
+        return [group for _, group in result_df.groupby("userId")]
 
     def get_focustimer_ids_from_user_id_and_range(
         self, user_id: str, start_time: datetime, duration: timedelta
@@ -162,7 +206,7 @@ class MongoDBChecker:
 
         for idx, element in enumerate(result):
             result[idx] = {
-                "email" : self.get_email_from_user_id(user_id=user_id),
+                "email": self.get_email_from_user_id(user_id=user_id),
                 "goalId": element["goalId"],
                 "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
                 "startedAt": self._convert_timestamp(element["startedAt"])[0],
@@ -474,10 +518,18 @@ def date_treatement(df):
 def get_boa_bor(user_id, focus_id, dev_mode=True):
 
     mongo_repository = MongoDBRepository()
-    mongo_repository.connect("mongodb://looxidlabs:looxidlabs.vkdlxld%21@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false", dev_mode=dev_mode)
-    
+    mongo_repository.connect(
+        "mongodb://looxidlabs:looxidlabs.vkdlxld%21@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false",
+        dev_mode=dev_mode,
+    )
+
     try:
-        total_efficiencies = np.array(mongo_repository.get_total_efficiencies_from_focus_id(focus_id=focus_id)) / 100
+        total_efficiencies = (
+            np.array(
+                mongo_repository.get_total_efficiencies_from_focus_id(focus_id=focus_id)
+            )
+            / 100
+        )
 
         return (
             get_proportion(total_efficiencies),
@@ -533,19 +585,23 @@ def add_summed_total_goal_in_df(df):
 
     return df
 
+
 def get_summed_abs_brain_energies_from_df(df):
-    
+
     boas = []
     for _, value in df.iterrows():
         day = value["weekday"]
         boa = np.sum(value["abs_brain_energies"])
 
         boas.append(boa)
-        
+
     df["abs_brain_energie"] = boas
-    df["summed_abs_brain_energies"] = df.groupby("date")["abs_brain_energie"].transform("sum")
-    
+    df["summed_abs_brain_energies"] = df.groupby("date")["abs_brain_energie"].transform(
+        "sum"
+    )
+
     return df
+
 
 def add_mean_and_sum_features_to_df(df):
 
@@ -561,7 +617,7 @@ def add_mean_and_sum_features_to_df(df):
     df = add_summed_total_goal_in_df(df)
     df = get_summed_abs_brain_energies_from_df(df)
     df["summed_time"] = df.groupby("date")["time"].transform("sum")
-#     df = ["summed_goal_proportion"] = df.groupby("date")["summed_time"].transform("sum") 이미 있는거같은데
+    #     df = ["summed_goal_proportion"] = df.groupby("date")["summed_time"].transform("sum") 이미 있는거같은데
 
     return df
 
@@ -627,7 +683,7 @@ def missing_week_treatement(df):
 
 def sort_df_bt_weekday(df):
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
-    
+
     max_time_rows = df.loc[df.groupby("weekday")["time"].idxmax()]
 
     weekday_order = [
@@ -649,12 +705,14 @@ def sort_df_bt_weekday(df):
 
 def create_user_df(date):
     checker = MongoDBChecker(connection_string, dev_mode=False)
-    dfs = checker.get_focustimer_ids_from_range_for_each_user_ids(date, timedelta(days=6))
-    
+    dfs = checker.get_focustimer_ids_from_range_for_each_user_ids(
+        date, timedelta(days=6)
+    )
+
     final_dfs = []
     for df in dfs:
 
-        if df[df["time"] > 30 * 60].empty: # 30분 이상 하나라도 있어야함
+        if df[df["time"] > 30 * 60].empty:  # 30분 이상 하나라도 있어야함
             continue
         df, merged_df = date_treatement(df)
 
@@ -663,7 +721,9 @@ def create_user_df(date):
 
         for _, row in df.iterrows():
             time_variation_col.append(
-                list(merged_df[merged_df["date"] == str(row["date"])]["time_variation"])[0]
+                list(
+                    merged_df[merged_df["date"] == str(row["date"])]["time_variation"]
+                )[0]
             )
             duration_col.append(
                 list(merged_df[merged_df["date"] == str(row["date"])]["duration"])[0]
@@ -697,6 +757,9 @@ def create_user_df(date):
         df["goalProportion"] = df["duration"] - df["goalTime"]
         df.loc[df["time"] < 600, "goalProportion"] = 0
         df["goalAccomplished"] = df["goalProportion"] >= 0
+        
+        study_reg = study_session_factory(df)
+        
         df = add_mean_and_sum_features_to_df(df)
         df = missing_week_treatement(df)
         df = sort_df_bt_weekday(df)
@@ -715,6 +778,7 @@ def create_user_df(date):
         week_index = weekday_order.index(target_week)
 
         new_weekday_order = weekday_order[week_index:] + weekday_order[:week_index]
+        df["study_regularity"] = study_reg
 
         df.sort_values(
             by="weekday",
@@ -722,9 +786,11 @@ def create_user_df(date):
             inplace=True,
         )
 
-        df["summed_goal_proportion"] = df["summed_total_duration"] - df["summed_total_goal"]
+        df["summed_goal_proportion"] = (
+            df["summed_total_duration"] - df["summed_total_goal"]
+        )
         df["summed_goal_proportion"] = df["summed_goal_proportion"].fillna(0)
-        
+
         final_dfs.append(df)
-        
+
     return final_dfs

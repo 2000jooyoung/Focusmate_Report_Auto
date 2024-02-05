@@ -45,7 +45,9 @@ def generate_daily_study_time(df, name):
     for pngs, week in zip(daily_study_time들, weeks):
         pngs.save(f"images/daily_study_time_{week}.png", scale_factor=1)
         make_color_transparent(
-            f"images/daily_study_time_{week}.png", f"images/daily_study_time_{week}.png", "#FFFFFF"
+            f"images/daily_study_time_{week}.png",
+            f"images/daily_study_time_{week}.png",
+            "#FFFFFF",
         )
 
     generate_daily_study_time_text(duration, name)
@@ -164,9 +166,13 @@ def generate_goal_relational_study_time(df, name):
         )
     )
 
-    goal_relational_study_time.save(f"images/goal_relational_study_time.png", scale_factor=1)
+    goal_relational_study_time.save(
+        f"images/goal_relational_study_time.png", scale_factor=1
+    )
     make_color_transparent(
-        f"images/goal_relational_study_time.png", f"images/goal_relational_study_time.png", "#FFFFFF"
+        f"images/goal_relational_study_time.png",
+        f"images/goal_relational_study_time.png",
+        "#FFFFFF",
     )
 
     generate_goal_relational_study_time_text(target, name)
@@ -231,7 +237,9 @@ def generate_goal_relational_study_time_text(target, name):
     chart = chart.configure_view(stroke="transparent")
     chart.save(f"images/goal_relational_study_time_text_max.png", scale_factor=1)
     make_color_transparent(
-        f"images/goal_relational_study_time_text_max.png", f"images/goal_relational_study_time_text_max.png", "#FFFFFF"
+        f"images/goal_relational_study_time_text_max.png",
+        f"images/goal_relational_study_time_text_max.png",
+        "#FFFFFF",
     )
 
 
@@ -242,12 +250,14 @@ def generate_평균study_time(hour, minute, name):
     colors = ["#9494FF", "#EFEFFA"]
 
     wedgeprops = {"width": 0.3, "edgecolor": "w", "lw": 3}
-    
+
     fig, ax = plt.subplots()
     plt.pie(
         values, startangle=90, counterclock=False, colors=colors, wedgeprops=wedgeprops
     )
     plt.savefig(f"images/study_time.png")
-    make_color_transparent(f"images/study_time.png", f"images/study_time.png", "#FFFFFF")
+    make_color_transparent(
+        f"images/study_time.png", f"images/study_time.png", "#FFFFFF"
+    )
 
     plt.close()

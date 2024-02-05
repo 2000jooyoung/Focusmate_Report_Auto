@@ -77,9 +77,7 @@ def generate_bor(df, name, date):
 
     df_without_zeros = df[df["time"] > 0]
 
-    평균bor = np.mean(
-        [element.mean() for element in df_without_zeros.abs_brain_energies]
-    )
+    평균bor = np.mean([element.mean() for element in df_without_zeros.abs_brain_energies])
 
     gen.addGraphics((420, 630), f"images/meaned_bor_proportion.png", scale=0.3)
     gen.addColoredText(
@@ -111,14 +109,12 @@ def generate_bor(df, name, date):
     gen.addText("두놔가동률", (503, 705), font_size=7)
     gen.addText(f"{round(평균bor * 100)}%", (513, 695), font_size=7)
 
-    
-    
-    for idx, week in enumerate(eng_week_2_korean_week(weeks)): # 한글로 바꾸기
+    for idx, week in enumerate(eng_week_2_korean_week(weeks)):  # 한글로 바꾸기
         gen.addColoredText(
             f"{week}", (61 + 30.2 * idx, 432), font_size=9, color=(150, 151, 164)
         )
 
-    for idx, week in enumerate(eng_week_2_korean_week(weeks)): # 한글로 바꾸기
+    for idx, week in enumerate(eng_week_2_korean_week(weeks)):  # 한글로 바꾸기
         gen.addColoredText(
             f"{week}", (350 + 29.8 * idx, 432), font_size=9, color=(150, 151, 164)
         )

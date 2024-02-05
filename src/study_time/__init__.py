@@ -25,14 +25,22 @@ def generate_study_time(df, name, date):
     for x, week in zip(xs, weeks):
         gen.addGraphics((x, 467), f"images/daily_study_time_{week}.png", scale=0.3)
 
-    gen.addGraphics((542, 431), f"images/goal_relational_study_time_text_max.png", scale=0.1)
-    gen.addGraphics((481, 431), f"images/goal_relational_study_time_text_middle.png", scale=0.1)
+    gen.addGraphics(
+        (542, 431), f"images/goal_relational_study_time_text_max.png", scale=0.1
+    )
+    gen.addGraphics(
+        (481, 431), f"images/goal_relational_study_time_text_middle.png", scale=0.1
+    )
 
     gen.addText("-", (323, 444), font_size=6)
     gen.addText("-", (377, 444), font_size=6)
 
-    gen.addGraphics((321, 431), f"images/goal_relational_study_time_text_max.png", scale=0.1)
-    gen.addGraphics((373, 431), f"images/goal_relational_study_time_text_middle.png", scale=0.1)
+    gen.addGraphics(
+        (321, 431), f"images/goal_relational_study_time_text_max.png", scale=0.1
+    )
+    gen.addGraphics(
+        (373, 431), f"images/goal_relational_study_time_text_middle.png", scale=0.1
+    )
 
     df_without_zeros = df[df["time"] > 0]
 
@@ -54,7 +62,9 @@ def generate_study_time(df, name, date):
         gen.addText(f"{평균_주간_study_time.minute}분", (502, 690), font_size=10)
     else:
         gen.addText(
-            f"{평균_주간_study_time.hour}시간 {평균_주간_study_time.minute}분", (485, 690), font_size=10
+            f"{평균_주간_study_time.hour}시간 {평균_주간_study_time.minute}분",
+            (485, 690),
+            font_size=10,
         )
 
     gen.addText(
@@ -105,7 +115,9 @@ def generate_study_time(df, name, date):
         f"{7 - (df.summed_goal_proportion > 0).sum()}일 입니다. ", (305, 218), font_size=9
     )
 
-    gen.addGraphics((342, 420), f"images/goal_relational_study_time.png", scale=0.33)  # 칸당 15y
+    gen.addGraphics(
+        (342, 420), f"images/goal_relational_study_time.png", scale=0.33
+    )  # 칸당 15y
 
     gen.addGraphics((12, 540), f"images/daily_study_time_text_1.png", scale=0.12)
     gen.addGraphics((12, 540 - 25), f"images/daily_study_time_text_2.png", scale=0.12)

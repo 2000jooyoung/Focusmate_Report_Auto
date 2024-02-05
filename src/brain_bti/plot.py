@@ -54,10 +54,14 @@ def generate_bor_change_trend(df, name):
     ax.set_yticks([])
 
     ax.tick_params(axis="both", which="both", length=0)  # Hide ticks
-    
+
     plt.savefig(f"images/bor_change_trend.png", transparent=True)
-    make_color_transparent(f"images/bor_change_trend.png", f"images/bor_change_trend.png", "#FFFFFF")
-    resize_image(f"images/bor_change_trend.png", f"images/bor_change_trend.png", (2500, 800))
+    make_color_transparent(
+        f"images/bor_change_trend.png", f"images/bor_change_trend.png", "#FFFFFF"
+    )
+    resize_image(
+        f"images/bor_change_trend.png", f"images/bor_change_trend.png", (2500, 800)
+    )
     plt.close()
 
 

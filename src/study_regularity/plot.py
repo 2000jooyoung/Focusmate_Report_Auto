@@ -2,6 +2,7 @@ import altair as alt
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import os
 
 from src import create_week, make_color_transparent
 from src.resize_image import resize_image
@@ -40,36 +41,37 @@ def generate_study_regularity1(df, name):
     start_ranges, end_ranges = get_start_end_scaled_range(df)
 
     weeks = create_week(df.weekday)
+    study_regularities = df.study_regularity
 
-    for start, end, week in zip(start_ranges, end_ranges, weeks):
-        source = pd.DataFrame(
-            {
-                "x": [0, 1],
-                "y1": [start - 17, 0],
-                "y2": [end - 17, 100],
-                "color": ["#9494FF", "#00000000"],
-            }
-        )
-
-        study_regularity = (
-            alt.Chart(source)
-            .mark_bar(
-                width=30,
-                cornerRadius=5,
+    for idx, study_regularity_list in enumerate(study_regularities):
+        for study_regularity_cls in study_regularity_list:
+            source = study_regularity_cls.get_source_df()
+            study_regularity = (
+                alt.Chart(source)
+                .mark_bar(
+                    width=30,
+                    cornerRadius=5,
+                )
+                .encode(
+                    x=alt.X("x", axis=None),
+                    y=alt.Y("y1", axis=None),
+                    y2=alt.Y2("y2"),
+                    color=alt.Color("color", scale=None),
+                )
             )
-            .encode(
-                x=alt.X("x", axis=None),
-                y=alt.Y("y1", axis=None),
-                y2=alt.Y2("y2"),
-                color=alt.Color("color", scale=None),
-            )
-        )
 
-        study_regularity = study_regularity.configure_view(stroke="transparent")
-        study_regularity.save(f"images/study_regularity_{week}.png", scale_factor=1)
-        make_color_transparent(
-            f"images/study_regularity_{week}.png", f"images/study_regularity_{week}.png", "#FFFFFF"
-        )
+            study_regularity = study_regularity.configure_view(stroke="transparent")
+            
+            if not os.path.exists(f"images/{study_regularity_cls.weekday}"):
+                os.makedirs(f"images/{study_regularity_cls.weekday}")
+                
+            study_regularity.save(f"images/{study_regularity_cls.weekday}/study_regularity_{idx}.png", scale_factor=1)
+            
+            make_color_transparent(
+                f"images/{study_regularity_cls.weekday}/study_regularity_{idx}.png",
+                f"images/{study_regularity_cls.weekday}/study_regularity_{idx}.png",
+                "#FFFFFF",
+            )
 
 
 def save_공부_규칙성_2(data, name):
@@ -94,9 +96,13 @@ def save_공부_규칙성_2(data, name):
     fig.subplots_adjust(wspace=0.05)
 
     plt.savefig(f"images/study_regularity2.png", transparent=True)
-    make_color_transparent(f"images/study_regularity2.png", f"images/study_regularity2.png", "#FFFFFF")
-    resize_image(f"images/study_regularity2.png", f"images/study_regularity2.png", (2000, 2000))
-    
+    make_color_transparent(
+        f"images/study_regularity2.png", f"images/study_regularity2.png", "#FFFFFF"
+    )
+    resize_image(
+        f"images/study_regularity2.png", f"images/study_regularity2.png", (2000, 2000)
+    )
+
     plt.close()
 
 

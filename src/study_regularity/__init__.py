@@ -1,5 +1,6 @@
 import enum
 from datetime import timedelta
+from glob import glob
 
 from src import create_date_string, create_week, eng_week_2_korean_week
 from src.GenerateFromTemplate import GenerateFromTemplate
@@ -57,12 +58,13 @@ def generate_study_regularity(df, name, date):
 
     weeks = create_week(df.weekday)
 
-    for idx, week in enumerate(weeks):
-        gen.addGraphics(
-            (study_regularity_x + study_regularity_step * idx, study_regularity_y),
-            f"images/study_regularity_{week}.png",
-            scale=study_regularity_scale,
-        )
+    for idx, week in enumerate(df.weekday):
+        for file_path in glob(f"images/{week}/*.png"):
+            gen.addGraphics(
+                (study_regularity_x + study_regularity_step * idx, study_regularity_y),
+                file_path,
+                scale=study_regularity_scale,
+            )
 
     gen.addGraphics((297, 358), f"images/study_regularity2.png", scale=0.14)  # 토
 

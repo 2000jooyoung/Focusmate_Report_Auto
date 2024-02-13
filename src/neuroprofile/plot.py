@@ -95,78 +95,18 @@ def plot_and_save_평균두뇌활동비율(df, name):
     평균bor = np.mean([element.mean() for element in df_without_zeros.abs_brain_energies])
 
     if round(round(평균bor * 100)) <= 45:
-        return "d"
+        return "i"
     else:
-        return "h"
+        return "e"
 
 
 def plot_and_save_daily_total_study_time(df, name):
-    slope = get_daily_total_study_time_proportion(df)
-    value = slope
-
-    if slope > 50:
-        value_min = 100 - value
-        value_max = 100
+    session_time_mean = df.session_time_mean.mean()
+    
+    if session_time_mean >= 30 * 60:
+        return "l"
     else:
-        value_min = 0
-        value_max = value
-
-    source = pd.DataFrame(
-        {
-            "label": ["first", "first"],
-            "background": [100, 0],
-            "value": [value_min, value_max],
-            "value_text": [f"{value}%", f"{value}%"],
-        }
-    )
-
-    background = (
-        alt.Chart(source)
-        .mark_bar(
-            cornerRadius=7,
-            color="#DCAFFF",
-        )
-        .encode(x=alt.X("background").axis(None), y=alt.X("label").axis(None))
-    )  # properties
-
-    value_chart = (
-        alt.Chart(source)
-        .mark_bar(
-            cornerRadius=7,
-            color="#686BDC",
-        )
-        .encode(
-            x=alt.X("min(value):Q").axis(None),
-            x2="max(value):Q",
-            y=alt.X("label").axis(None),
-        )
-    )
-
-    value_text = (
-        alt.Chart(source)
-        .mark_text(
-            # 텍스트 색깔, 폰트(는 가능하면) 바꾸기
-            color="#FFFFF0"
-            # size
-        )
-        .encode(
-            x=alt.X("mean(value):Q").axis(None),
-            y=alt.X("label").axis(None),
-            text="value_text",
-        )
-    )
-    chart = background + value_chart + value_text
-    chart = chart.configure_view(stroke="transparent")
-    chart.save(f"images/daily_total_study_time.png")
-    make_color_transparent(
-        f"images/daily_total_study_time.png",
-        f"images/daily_total_study_time.png",
-        "#FFFFFF",
-    )
-    if slope >= 50:
-        return "e"
-    else:
-        return "i"
+        return "s"
 
 
 def plot_and_save_study_regularity(df, name):
@@ -288,13 +228,13 @@ def plot_and_save_focus_type(df, name):
     plt.close()
 
     if first_slope < last_slope:
-        return "l"
+        return "t"
     else:
-        return "b"
+        return "h"
 
 
 def generate_neuroprofile_list(df, name):
-    뇌BTI = ["i", "h", "c", "b"]
+    뇌BTI = ["l", "i", "c", "h"]
 
     뇌BTI[0] = plot_and_save_daily_total_study_time(df, name)
     뇌BTI[1] = plot_and_save_평균두뇌활동비율(df, name)

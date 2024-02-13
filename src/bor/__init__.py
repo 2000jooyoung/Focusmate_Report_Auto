@@ -11,7 +11,7 @@ def generate_bor(df, name, date):
     generate_daily_boa(df, name)
     generate_평균두뇌활동비율(df, name)
 
-    gen = GenerateFromTemplate("./report_template/bor.pdf")
+    gen = GenerateFromTemplate("./report_template_new/bor.pdf")
     gen.addText(date.strftime("%Y년 %m월 %d일"), (129, 790), font_size=9)
     gen.addText(
         (date + timedelta(days=6)).strftime(" ~ %Y년 %m월 %d일"), (200, 790), font_size=9
@@ -119,7 +119,7 @@ def generate_bor(df, name, date):
             f"{week}", (350 + 29.8 * idx, 432), font_size=9, color=(150, 151, 164)
         )
 
-    days = create_date_string(df["startedAt"].iloc[0])
+    days = create_date_string(df["startedAt"].dropna().iloc[0])
 
     for idx, day in enumerate(days):
         gen.addColoredText(

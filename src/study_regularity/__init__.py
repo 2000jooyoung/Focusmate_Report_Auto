@@ -45,16 +45,16 @@ def generate_study_regularity(df, name, date):
     # Convert the Korean words to integers using the mapping
     규칙성_int = [mapping[word] for word in 규칙성]
 
-    gen = GenerateFromTemplate("./report_template/study_regularity.pdf")
+    gen = GenerateFromTemplate("./report_template_new/study_regularity.pdf")
     gen.addText(date.strftime("%Y년 %m월 %d일"), (129, 790), font_size=9)
     gen.addText(
         (date + timedelta(days=6)).strftime(" ~ %Y년 %m월 %d일"), (200, 790), font_size=9
     )
     gen.addText(name, (510, 805), font_size=9)
 
-    study_regularity_x, study_regularity_y = 64, 448
+    study_regularity_x, study_regularity_y = 64, 454
     study_regularity_step = 28
-    study_regularity_scale = 0.38
+    study_regularity_scale = 0.36
 
     weeks = create_week(df.weekday)
 
@@ -92,7 +92,7 @@ def generate_study_regularity(df, name, date):
             f"{week}", (72 + 28 * idx, 435), font_size=8, color=(150, 151, 164)
         )
 
-    days = create_date_string(df["startedAt"].iloc[0])
+    days = create_date_string(df["startedAt"].dropna().iloc[0])
 
     for idx, day in enumerate(days):
         gen.addColoredText(

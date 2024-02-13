@@ -244,7 +244,7 @@ def generate_goal_relational_study_time_text(target, name):
 
 
 def generate_평균study_time(hour, minute, name):
-    total_time = 6 * 60  # 임의로 6시간으로 정함
+    total_time = 3 * 60  # 임의로 3시간으로 정함
     current_time = hour * 60 + minute
     values = [current_time, total_time]
     colors = ["#9494FF", "#EFEFFA"]

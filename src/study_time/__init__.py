@@ -12,7 +12,7 @@ def generate_study_time(df, name, date):
     generate_daily_study_time(df, name)
     generate_goal_relational_study_time(df, name)
 
-    gen = GenerateFromTemplate("./report_template/study_time.pdf")
+    gen = GenerateFromTemplate("./report_template_new/study_time.pdf")
     gen.addText(date.strftime("%Y년 %m월 %d일"), (129, 790), font_size=9)
     gen.addText(
         (date + timedelta(days=6)).strftime(" ~ %Y년 %m월 %d일"), (200, 790), font_size=9
@@ -45,7 +45,7 @@ def generate_study_time(df, name, date):
     df_without_zeros = df[df["time"] > 0]
 
     평균_주간_study_time = datetime(2000, 3, 17, 0) + timedelta(
-        seconds=np.mean(df_without_zeros.summed_time)
+        seconds=np.sum(df.summed_time) // 7
     )
     최대_주간_study_time = datetime(2000, 3, 17, 0) + timedelta(
         seconds=np.max(df_without_zeros.summed_time)
@@ -100,7 +100,7 @@ def generate_study_time(df, name, date):
     )
 
     gen.addText(
-        f"{name} 님의 공부 시간의 평균 변화량은 {round(np.mean(공부_시간_변화량) // 60)}분으로, {'증가' if np.mean(공부_시간_변화량) // 60 >= 0 else '감소'}하는 양상을",
+        f"{name} 님의 공부 시간의 평균 변화량은 {round(np.abs(np.mean(공부_시간_변화량) // 60))}분으로, {'증가' if np.mean(공부_시간_변화량) // 60 >= 0 else '감소'}하는 양상을",
         (20, 230),
         font_size=9,
     )
@@ -134,7 +134,9 @@ def generate_study_time(df, name, date):
             f"{week}", (75 + 30.5 * idx, 455), font_size=8, color=(150, 151, 164)
         )
 
-    days = create_date_string(df["startedAt"].iloc[0])
+    # 그냥 여기를 date 있으니까 그만큼 더해서 만드셈
+    days = [(date + timedelta(days=i)).strftime("%m.%d") for i in range(7)]
+    # days = create_date_string(df["startedAt"].dropna().iloc[0])
 
     for idx, day in enumerate(days):
         gen.addColoredText(

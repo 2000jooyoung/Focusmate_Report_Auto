@@ -614,6 +614,7 @@ def add_mean_and_sum_features_to_df(df):
     df["highFocusMean"] = df.groupby("date")["highFocus"].transform("mean")
     df["middleFocusMean"] = df.groupby("date")["middleFocus"].transform("mean")
     df["lowFocusMean"] = df.groupby("date")["lowFocus"].transform("mean")
+    df["session_time_mean"] = df.groupby("date")["time"].transform("mean")
 
     # sum
     df["summed_total_boa"] = df.groupby("date")["total_boa"].transform("sum")
@@ -621,12 +622,11 @@ def add_mean_and_sum_features_to_df(df):
     df = add_summed_total_goal_in_df(df)
     df = get_summed_abs_brain_energies_from_df(df)
     df["summed_time"] = df.groupby("date")["time"].transform("sum")
-    #     df = ["summed_goal_proportion"] = df.groupby("date")["summed_time"].transform("sum") 이미 있는거같은데
 
     return df
 
 
-def missing_week_treatement(df):
+def missing_week_treatement(df, date):
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
     all_weekdays = [
@@ -638,6 +638,8 @@ def missing_week_treatement(df):
         "Saturday",
         "Sunday",
     ]
+    week = date.strftime("%A")
+    all_weekdays = all_weekdays[all_weekdays.index(week):] + all_weekdays[:all_weekdays.index(week)]
     existing_weekdays = df["weekday"].unique()
 
     missing_weekdays = set(all_weekdays) - set(existing_weekdays)
@@ -646,7 +648,7 @@ def missing_week_treatement(df):
     for missing_weekday in missing_weekdays:
         date_for_missing_weekday = pd.to_datetime(
             "now"
-        ).normalize()  # You can replace this with an appropriate date
+        ).normalize()
         missing_weekdays_df.append(
             {"date": date_for_missing_weekday, "weekday": missing_weekday}
         )
@@ -765,7 +767,7 @@ def create_user_df(date):
         study_reg = study_session_factory(df)
         
         df = add_mean_and_sum_features_to_df(df)
-        df = missing_week_treatement(df)
+        df = missing_week_treatement(df, date)
         df = sort_df_bt_weekday(df)
 
         weekday_order = [
@@ -778,7 +780,7 @@ def create_user_df(date):
             "Saturday",
         ]
 
-        target_week = df.sort_values("startedAt")["weekday"].iloc[0]
+        target_week = date.strftime("%A")
         week_index = weekday_order.index(target_week)
 
         new_weekday_order = weekday_order[week_index:] + weekday_order[:week_index]

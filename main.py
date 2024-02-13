@@ -84,7 +84,7 @@ for df in dfs:
 
     if False in complished_conditions:
         continue
-    name = list(df.email)[0]
+    name = df.email.dropna().iloc[0]
     input_paths = []
     input_paths.append(generate_study_time(df, name, date))
     input_paths.append(generate_bor(df, name, date))

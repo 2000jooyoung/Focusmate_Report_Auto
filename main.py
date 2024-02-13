@@ -99,4 +99,4 @@ for df in dfs:
     
     shutil.rmtree("images")
 
-# send_mail(subject=f"포커스메이트 {name}님 주간 리포트 결과", body="Oh Yeah", email="jooyoung.kim@looxidlabs.com", attachments=[output_path])
+send_mail(subject=f"포커스메이트 {name}님 주간 리포트 결과", body="Oh Yeah", email="jooyoung.kim@looxidlabs.com", attachments=[output_path])

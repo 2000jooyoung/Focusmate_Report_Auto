@@ -39,6 +39,6 @@ jobs:
         # Build a docker container and
         # push it to ECR so that it can
         # be deployed to ECS.
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        docker build -t focusmate_report_auto .
+        docker tag focusmate_report_auto:latest 187768779388.dkr.ecr.ap-northeast-2.amazonaws.com/focusmate_report_auto:latest
+        docker push 187768779388.dkr.ecr.ap-northeast-2.amazonaws.com/focusmate_report_auto:latest

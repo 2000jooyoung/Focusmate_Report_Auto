@@ -68,8 +68,8 @@ def main():
 
     # 한 유저당 한개의 DF 로 DFS 만드는 과정. 이때 DF 안에서는 이미 필요한 index 들이 다 계산이 되어있다.
 
-    date = datetime.now()
-    date = datetime(date.year, date.month, date.day)
+    date = datetime(2024, 8, 1)
+    # date = datetime(date.year, date.month, date.day)
 
     utc_plus_9 = pytz.timezone("Asia/Tokyo")
     date = utc_plus_9.localize(date)
@@ -127,5 +127,5 @@ def main():
     )
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()

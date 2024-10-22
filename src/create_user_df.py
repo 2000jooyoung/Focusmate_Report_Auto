@@ -11,7 +11,7 @@ import pytz
 from src.Repositories.MongoDBRepository import MongoDBRepository
 
 
-connection_string = "mongodb://looxidlabs:looxidlabs.vkdlxld!@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
+connection_string = "mongodb://looxidlabs:looxidlabs.vkdlxld%21@43.203.3.210:39632/m-project-dev?authSource=admin&readPreference=primary&directConnection=true&ssl=false"
 
 
 def study_session_factory(df):
@@ -167,7 +167,7 @@ class MongoDBChecker:
             result[idx] = {
                 "email": self.get_email_from_user_id(user_id=element["userId"]),
                 "goalId": element["goalId"],
-                "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
+                # "goalTime": self.get_goal_time_from_goal_id(element["goalId"]),
                 "startedAt": self._convert_timestamp(element["startedAt"])[0],
                 "time": element["time"],
                 "endAt": self._convert_timestamp(
@@ -523,7 +523,7 @@ def get_boa_bor(user_id, focus_id, dev_mode=True):
 
     mongo_repository = MongoDBRepository()
     mongo_repository.connect(
-        "mongodb://looxidlabs:looxidlabs.vkdlxld%21@3.36.42.241:39632/m-project-dev?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false",
+        "mongodb://looxidlabs:looxidlabs.vkdlxld%21@43.203.3.210:39632/m-project-dev?authSource=admin&readPreference=primary&directConnection=true&ssl=false",
         dev_mode=dev_mode,
     )
 
@@ -619,7 +619,7 @@ def add_mean_and_sum_features_to_df(df):
     # sum
     df["summed_total_boa"] = df.groupby("date")["total_boa"].transform("sum")
     df["summed_total_duration"] = df.groupby("date")["duration"].transform("sum")
-    df = add_summed_total_goal_in_df(df)
+    # df = add_summed_total_goal_in_df(df)
     df = get_summed_abs_brain_energies_from_df(df)
     df["summed_time"] = df.groupby("date")["time"].transform("sum")
 
@@ -656,33 +656,33 @@ def missing_week_treatement(df, date):
     missing_weekdays_df = pd.DataFrame(missing_weekdays_df)
     df = pd.concat([df, missing_weekdays_df], ignore_index=True, sort=False)
 
-    numeric_columns = [
-        "duration",
-        "time_variation",
-        "goalAccomplished",
-        "boa",
-        "veryHighFocus",
-        "highFocus",
-        "middleFocus",
-        "lowFocus",
-        "time",
-        "veryHighFocusMean",
-        "highFocusMean",
-        "middleFocusMean",
-        "lowFocusMean",
-        "goalProportion",
-        "total_boa",
-        "summed_total_boa",
-        "summed_total_duration",
-        "summed_total_goal",
-    ]
-    df[numeric_columns] = df[numeric_columns].fillna(0)
+    # numeric_columns = [
+    #     "duration",
+    #     "time_variation",
+    #     "goalAccomplished",
+    #     "boa",
+    #     "veryHighFocus",
+    #     "highFocus",
+    #     "middleFocus",
+    #     "lowFocus",
+    #     "time",
+    #     "veryHighFocusMean",
+    #     "highFocusMean",
+    #     "middleFocusMean",
+    #     "lowFocusMean",
+    #     "goalProportion",
+    #     "total_boa",
+    #     "summed_total_boa",
+    #     "summed_total_duration",
+    #     "summed_total_goal",
+    # ]
+    # df[numeric_columns] = df[numeric_columns].fillna(0)
 
-    string_columns = ["focusId", "userId", "abs_brain_energies"]
-    df[string_columns] = df[string_columns].fillna("Noexist")
+    # string_columns = ["focusId", "userId", "abs_brain_energies"]
+    # df[string_columns] = df[string_columns].fillna("Noexist")
 
-    list_columns = ["abs_brain_energies"]  # Add other list columns as needed
-    df[list_columns] = df[list_columns].applymap(lambda x: [0] if type(x) == str else x)
+    # list_columns = ["abs_brain_energies"]  # Add other list columns as needed
+    # df[list_columns] = df[list_columns].applymap(lambda x: [0] if type(x) == str else x)
 
     return df
 
@@ -760,42 +760,42 @@ def create_user_df(date):
             total_boa.append(np.sum(value["abs_brain_energies"]))
         df["total_boa"] = total_boa
 
-        df["goalProportion"] = df["duration"] - df["goalTime"]
-        df.loc[df["time"] < 600, "goalProportion"] = 0
-        df["goalAccomplished"] = df["goalProportion"] >= 0
+        # df["goalProportion"] = df["duration"] - df["goalTime"]
+        # df.loc[df["time"] < 600, "goalProportion"] = 0
+        # df["goalAccomplished"] = df["goalProportion"] >= 0
         
-        study_reg = study_session_factory(df)
+        # study_reg = study_session_factory(df)
         
-        df = add_mean_and_sum_features_to_df(df)
-        df = missing_week_treatement(df, date)
-        df = sort_df_bt_weekday(df)
+        # df = add_mean_and_sum_features_to_df(df)
+        # df = missing_week_treatement(df, date)
+        # df = sort_df_bt_weekday(df)
 
-        weekday_order = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ]
+        # weekday_order = [
+        #     "Sunday",
+        #     "Monday",
+        #     "Tuesday",
+        #     "Wednesday",
+        #     "Thursday",
+        #     "Friday",
+        #     "Saturday",
+        # ]
 
-        target_week = date.strftime("%A")
-        week_index = weekday_order.index(target_week)
+        # target_week = date.strftime("%A")
+        # week_index = weekday_order.index(target_week)
 
-        new_weekday_order = weekday_order[week_index:] + weekday_order[:week_index]
-        df["study_regularity"] = study_reg
+        # new_weekday_order = weekday_order[week_index:] + weekday_order[:week_index]
+        # df["study_regularity"] = study_reg
 
-        df.sort_values(
-            by="weekday",
-            key=lambda x: x.map({day: i for i, day in enumerate(new_weekday_order)}),
-            inplace=True,
-        )
+        # df.sort_values(
+        #     by="weekday",
+        #     key=lambda x: x.map({day: i for i, day in enumerate(new_weekday_order)}),
+        #     inplace=True,
+        # )
 
-        df["summed_goal_proportion"] = (
-            df["summed_total_duration"] - df["summed_total_goal"]
-        )
-        df["summed_goal_proportion"] = df["summed_goal_proportion"].fillna(0)
+        # df["summed_goal_proportion"] = (
+        #     df["summed_total_duration"] - df["summed_total_goal"]
+        # )
+        # df["summed_goal_proportion"] = df["summed_goal_proportion"].fillna(0)
 
         final_dfs.append(df)
 

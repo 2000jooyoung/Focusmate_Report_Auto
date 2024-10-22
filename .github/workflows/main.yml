@@ -6,7 +6,7 @@ on:
     branches:
       - main
 
-name: Demo CI on ECR
+name: CD for ECR Focusmate Report
 
 jobs:
   deploy:

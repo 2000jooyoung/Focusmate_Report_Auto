@@ -3,7 +3,7 @@ reportlab
 PyPDF2
 matplotlib
 scipy
-altair
+altair==5.2.0
 pytz
 pymongo
 vl-convert-python

@@ -29,6 +29,22 @@ def drawText(c, text, x, y, font_size):
 
 
 class GenerateFromTemplate:
+    """
+    PDF 를 쉽게 편집할 수 있도록 만든 클래스
+
+    사용법은
+    1. generator를 pdf template path 를 통해서 로드 한다
+    ex. gen = GenerateFromTemplate("./report_template_new/study_time.pdf")
+
+    2. 택스트 혹은 이미지를 삽입한다
+    ex text. gen.addText(name, (510, 805), font_size=9)
+    ex image. gen.addGraphics((x, 467), f"images/daily_study_time_{week}.png", scale=0.3)
+
+    3. 편집이 완료가 된 변경사항을 merge 하고 저장할 수 있다
+    ex.  gen.merge()
+         gen.generate(f"output/{name}_study_time.pdf")
+    """
+
     def __init__(self, template):
         self.template_pdf = PdfReader(open(template, "rb"))
         self.template_page = self.template_pdf.pages[0]
